@@ -1,0 +1,134 @@
+<div class="container">
+  <header>
+    <h1>Mes Tâches</h1>
+    <button mat-icon-button (click)="toggleTheme()">
+      <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+    </button>
+  </header>
+
+  <section class="add-todo">
+    <input
+      type="text"
+      [value]="newTodoTitle()"
+      (input)="newTodoTitle.set($any($event.target).value)"
+      placeholder="Titre..."
+      (keyup.enter)="addTodo()"
+    />
+    <input
+      type="text"
+      [value]="newTodoDescription()"
+      (input)="newTodoDescription.set($any($event.target).value)"
+      placeholder="Description..."
+      (keyup.enter)="addTodo()"
+    />
+    <select
+      [value]="newTodoPriority()"
+      (change)="newTodoPriority.set($any($event.target).value)"
+    >
+      <option value="LOW">Faible</option>
+      <option value="MEDIUM">Moyenne</option>
+      <option value="HIGH">Élevée</option>
+    </select>
+
+    <button mat-mini-fab color="primary" (click)="addTodo()" [disabled]="!newTodoTitle().trim()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </section>
+
+  <div *ngIf="isLoading()" class="skeleton"></div>
+
+  <section *ngIf="!isLoading()" class="drag-drop-section">
+    <div cdkDropListGroup>
+      <div class="example-container">
+        <h2>À faire ({{ todo().length }})</h2>
+        <div
+          cdkDropList
+          id="todo-list"
+          [cdkDropListData]="todo()"
+          class="example-list"
+          (cdkDropListDropped)="drop($event)">
+          @for (item of todo(); track item.id) {
+            <div class="example-box" cdkDrag>
+              <div class="drag-item-content">
+                <div class="drag-item-header">
+                  <input 
+                    type="checkbox" 
+                    [checked]="item.completed" 
+                    (change)="toggle(item)" 
+                  />
+                  <h3 class="title">{{ item.title }}</h3>
+                </div>
+                <p class="description" *ngIf="item.description">
+                  {{ item.description }}
+                </p>
+                <div class="drag-item-meta">
+                  <span class="created">
+                    {{ item.createdAt | date:'dd/MM/yy HH:mm' }}
+                  </span>
+                  <span class="priority" [ngClass]="item.priority?.toLowerCase()">
+                    {{ item.priority }}
+                  </span>
+                  <button 
+                    mat-icon-button 
+                    color="warn" 
+                    (click)="item.id && deleteTodo(item.id)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="example-container">
+        <h2>Terminé ({{ done().length }})</h2>
+        <div
+          cdkDropList
+          id="done-list"
+          [cdkDropListData]="done()"
+          class="example-list"
+          (cdkDropListDropped)="drop($event)">
+          @for (item of done(); track item.id) {
+            <div class="example-box" cdkDrag>
+              <div class="drag-item-content">
+                <div class="drag-item-header">
+                  <input 
+                    type="checkbox" 
+                    [checked]="item.completed" 
+                    (change)="toggle(item)" 
+                  />
+                  <h3 class="title completed">{{ item.title }}</h3>
+                </div>
+                <p class="description" *ngIf="item.description">
+                  {{ item.description }}
+                </p>
+                <div class="drag-item-meta">
+                  <span class="created">
+                    {{ item.createdAt | date:'dd/MM/yy HH:mm' }}
+                  </span>
+                  <span class="priority" [ngClass]="item.priority?.toLowerCase()">
+                    {{ item.priority }}
+                  </span>
+                  <button 
+                    mat-icon-button 
+                    color="warn" 
+                    (click)="item.id && deleteTodo(item.id)"
+                  >
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="todos().length === 0" class="empty">
+      <mat-icon>task_alt</mat-icon>
+      <p>Aucune tâche ! Profite de ta journée !</p>
+    </div>
+  </section>
+</div>
